@@ -66,7 +66,7 @@ public:
     inline const std::vector<OclThread*> &threads() const { return m_threads; }
     inline const std::vector<Url*> &pools() const         { return m_pools; }
     inline int apiPort() const                            { return m_apiPort; }
-    inline int donateLevel() const                        { return m_donateLevel; }
+    inline double donateLevel() const                        { return m_donateLevel; }
     inline int platformIndex() const                      { return m_platformIndex; }
     inline int printTime() const                          { return m_printTime; }
     inline int retries() const                            { return m_retries; }
@@ -114,7 +114,7 @@ private:
     char *m_logFile;
     char *m_userAgent;
     int m_apiPort;
-    int m_donateLevel;
+    double m_donateLevel;
     int m_platformIndex;
     int m_printTime;
     int m_retries;

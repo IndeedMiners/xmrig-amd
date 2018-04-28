@@ -90,13 +90,12 @@ static void print_cpu()
 
 static void print_algo()
 {
-    Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mALGO:         %s, %sdonate=%d%%" : " * ALGO:         %s, %sdonate=%d%%",
+    Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mALGO:         %s, %sdonate=%.1f%%" : " * ALGO:         %s, %sdonate=%.1f%%",
                    Options::i()->algoName(),
                    Options::i()->colors() && Options::i()->donateLevel() == 0 ? "\x1B[01;31m" : "",
                    Options::i()->donateLevel()
     );
 }
-
 
 static void print_pools()
 {
@@ -133,9 +132,19 @@ static void print_commands()
 {
     if (Options::i()->colors()) {
         Log::i()->text("\x1B[01;32m * \x1B[01;37mCOMMANDS:     \x1B[01;35mh\x1B[01;37mashrate, \x1B[01;35mp\x1B[01;37mause, \x1B[01;35mr\x1B[01;37mesume");
+  Log::i()->text("-----------------------------Compiled by Indeed Miners-----------------------------");
+  Log::i()->text("88 88b 88 8888b.  888888 888888 8888b.      8b    d8 88 88b 88 888888 88''Yb .dP'Y8");
+  Log::i()->text("88 88Yb88  8I  Yb 88__   88__    8I  Yb     88b  d88 88 88Yb88 88__   88__dP `Ybo.'");
+  Log::i()->text("88 88 Y88  8I  dY 88''   88''    8I  dY     88YbdP88 88 88 Y88 88''   88'Yb  o.`Y8b");
+  Log::i()->text("88 88  Y8 8888Y'  888888 888888 8888Y'      88 YY 88 88 88  Y8 888888 88  Yb 8bodP'");
     }
     else {
         Log::i()->text(" * COMMANDS:     'h' hashrate, 'p' pause, 'r' resume");
+  Log::i()->text("-----------------------------Compiled by Indeed Miners-----------------------------");
+  Log::i()->text("88 88b 88 8888b.  888888 888888 8888b.      8b    d8 88 88b 88 888888 88''Yb .dP'Y8");
+  Log::i()->text("88 88Yb88  8I  Yb 88__   88__    8I  Yb     88b  d88 88 88Yb88 88__   88__dP `Ybo.'");
+  Log::i()->text("88 88 Y88  8I  dY 88''   88''    8I  dY     88YbdP88 88 88 Y88 88''   88'Yb  o.`Y8b");
+  Log::i()->text("88 88  Y8 8888Y'  888888 888888 8888Y'      88 YY 88 88 88  Y8 888888 88  Yb 8bodP'");
     }
 }
 
