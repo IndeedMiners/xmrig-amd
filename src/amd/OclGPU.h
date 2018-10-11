@@ -23,29 +23,37 @@
  */
 
 
-#ifndef __OCLGPU_H__
-#define __OCLGPU_H__
+#ifndef XMRIG_OCLGPU_H
+#define XMRIG_OCLGPU_H
 
 
 #include <vector>
 
 
 #include "amd/GpuContext.h"
-#include "xmrig.h"
+#include "common/xmrig.h"
 
 
-#define OCL_ERR_SUCCESS    (0)
-#define OCL_ERR_API        (2)
-#define OCL_ERR_BAD_PARAMS (1)
+namespace xmrig {
+    class Config;
+}
 
 
-uint32_t getNumPlatforms();
+class OclGPU
+{
+public:
+    static int findPlatformIdx(xmrig::Config *config);
+    static std::vector<GpuContext> getDevices(xmrig::Config *config);
+
+private:
+    static int findPlatformIdx(xmrig::OclVendor vendor, char *name, size_t nameSize);
+};
+
+
 void printPlatforms();
-int getAMDPlatformIdx();
-std::vector<GpuContext> getAMDDevices(int index);
 
-size_t InitOpenCL(GpuContext* ctx, size_t num_gpus, size_t platform_idx);
-size_t XMRSetJob(GpuContext* ctx, uint8_t* input, size_t input_len, uint64_t target, xmrig::Algo algorithm, uint32_t variant);
-size_t XMRRunJob(GpuContext* ctx, cl_uint* HashOutput, xmrig::Algo algorithm, uint32_t variant);
+size_t InitOpenCL(GpuContext *ctx, size_t num_gpus, xmrig::Config *config);
+size_t XMRSetJob(GpuContext *ctx, uint8_t *input, size_t input_len, uint64_t target, xmrig::Variant variant);
+size_t XMRRunJob(GpuContext *ctx, cl_uint *HashOutput, xmrig::Variant variant);
 
-#endif /* __OCLGPU_H__ */
+#endif /* XMRIG_OCLGPU_H */
