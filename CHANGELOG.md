@@ -1,6 +1,22 @@
+# v2.8.4
+- **Improved AMD Vega autoconfig (double threads & higher intensity).**
+- Fixed broken OpenCL code for `cn-lite` and `cn-heavy` (regression since v2.8.2).
+- [#166](https://github.com/xmrig/xmrig-amd/pull/166) Fixed graceful OpenCL shutdown.
+- Fixed OpenCL compile warnig with ROCm 1.9.1.
+- OpenCL cache file name now displayed in when strict cache disabled (`-DSTRICT_CACHE=OFF`).
+- Fixed wrong displayed GPU name in autoconfig phase.
+
+# v2.8.3
+- [#813](https://github.com/xmrig/xmrig/issues/813) Fixed critical bug with Minergate pool and variant 2.
+
+# v2.8.2
+- [#167](https://github.com/xmrig/xmrig-amd/issues/167) Fixed wrong hashrate in `GET /1/threads` API endpoint.
+- [#168](https://github.com/xmrig/xmrig-amd/issues/168) Fixed broken AMD OpenCL compile (old driver bug).
+
 # v2.8.1
 - [#156](https://github.com/xmrig/xmrig-amd/issues/156) Added CMake option to disable strict OpenCL cache.
 - [#769](https://github.com/xmrig/xmrig/issues/769) Fixed regression, some ANSI escape sequences was in log with disabled colors.
+- [#777](https://github.com/xmrig/xmrig/issues/777) Better report about pool connection issues. 
 - Added missing options to `--help` output.
 
 # v2.8.0
