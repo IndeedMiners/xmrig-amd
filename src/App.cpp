@@ -5,6 +5,7 @@
  * Copyright 2014-2016 Wolf9466    <https://github.com/OhGodAPet>
  * Copyright 2016      Jay D Dee   <jayddee246@gmail.com>
  * Copyright 2017-2018 XMR-Stak    <https://github.com/fireice-uk>, <https://github.com/psychocrypt>
+ * Copyright 2018      SChernykh   <https://github.com/SChernykh>
  * Copyright 2016-2018 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -28,12 +29,14 @@
 
 #include "api/Api.h"
 #include "App.h"
+#include "base/kernel/Signals.h"
 #include "common/Console.h"
 #include "common/log/Log.h"
 #include "common/Platform.h"
 #include "core/Config.h"
 #include "core/Controller.h"
 #include "crypto/CryptoNight.h"
+#include "Mem.h"
 #include "net/Network.h"
 #include "Summary.h"
 #include "version.h"
@@ -45,35 +48,29 @@
 #endif
 
 
-App *App::m_self = nullptr;
-
-
-
-App::App(int argc, char **argv) :
+xmrig::App::App(Process *process) :
     m_console(nullptr),
-    m_httpd(nullptr)
+    m_httpd(nullptr),
+    m_signals(nullptr)
 {
-    m_self = this;
-
-    m_controller = new xmrig::Controller();
-    if (m_controller->init(argc, argv) != 0) {
+    m_controller = new xmrig::Controller(process);
+    if (m_controller->init() != 0) {
         return;
     }
 
     if (!m_controller->config()->isBackground()) {
         m_console = new Console(this);
     }
-
-    uv_signal_init(uv_default_loop(), &m_sigHUP);
-    uv_signal_init(uv_default_loop(), &m_sigINT);
-    uv_signal_init(uv_default_loop(), &m_sigTERM);
 }
 
 
-App::~App()
+xmrig::App::~App()
 {
+    Platform::restoreTimerResolution();
+
     uv_tty_reset_mode();
 
+    delete m_signals;
     delete m_console;
     delete m_controller;
 
@@ -83,17 +80,17 @@ App::~App()
 }
 
 
-int App::exec()
+int xmrig::App::exec()
 {
     if (!m_controller->isReady()) {
         return 2;
     }
 
-    uv_signal_start(&m_sigHUP,  App::onSignal, SIGHUP);
-    uv_signal_start(&m_sigINT,  App::onSignal, SIGINT);
-    uv_signal_start(&m_sigTERM, App::onSignal, SIGTERM);
+    m_signals = new Signals(this);
 
     background();
+
+    Mem::init(true);
 
     if (!CryptoNight::init(m_controller->config()->algorithm().algo())) {
         LOG_ERR("\"%s\" hash self-test failed.", m_controller->config()->algorithm().name());
@@ -122,6 +119,10 @@ int App::exec()
     m_httpd->start();
 #   endif
 
+    if (Platform::setTimerResolution(1) == 0) {
+        LOG_WARN("Failed to set system timer resolution.");
+    }
+
     if (!m_controller->oclInit() || !Workers::start(m_controller)) {
         LOG_ERR("Failed to start threads.");
         return 1;
@@ -136,7 +137,7 @@ int App::exec()
 }
 
 
-void App::onConsoleCommand(char command)
+void xmrig::App::onConsoleCommand(char command)
 {
     switch (command) {
     case 'h':
@@ -171,16 +172,7 @@ void App::onConsoleCommand(char command)
 }
 
 
-void App::close()
-{
-    m_controller->network()->stop();
-    Workers::stop();
-
-    uv_stop(uv_default_loop());
-}
-
-
-void App::onSignal(uv_signal_t *handle, int signum)
+void xmrig::App::onSignal(int signum)
 {
     switch (signum)
     {
@@ -200,6 +192,14 @@ void App::onSignal(uv_signal_t *handle, int signum)
         break;
     }
 
-    uv_signal_stop(handle);
-    m_self->close();
+    close();
+}
+
+
+void xmrig::App::close()
+{
+    m_controller->network()->stop();
+    Workers::stop();
+
+    uv_stop(uv_default_loop());
 }

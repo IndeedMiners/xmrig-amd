@@ -4,7 +4,9 @@
  * Copyright 2014      Lucas Jones <https://github.com/lucasjones>
  * Copyright 2014-2016 Wolf9466    <https://github.com/OhGodAPet>
  * Copyright 2016      Jay D Dee   <jayddee246@gmail.com>
- * Copyright 2016-2018 XMRig       <support@xmrig.com>
+ * Copyright 2017-2018 XMR-Stak    <https://github.com/fireice-uk>, <https://github.com/psychocrypt>
+ * Copyright 2018-2019 SChernykh   <https://github.com/SChernykh>
+ * Copyright 2016-2019 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,6 +33,9 @@
 namespace xmrig {
 
 
+class String;
+
+
 class IConfig
 {
 public:
@@ -47,7 +52,6 @@ public:
         ColorKey          = 1002,
         ConfigKey         = 'c',
         DonateLevelKey    = 1003,
-        HelpKey           = 'h',
         KeepAliveKey      = 'k',
         LogFileKey        = 'l',
         PasswordKey       = 'p',
@@ -61,7 +65,6 @@ public:
         UserpassKey       = 'O',
         VariantKey        = 1010,
         VerboseKey        = 1100,
-        VersionKey        = 'V',
         WatchKey          = 1105,
         TlsKey            = 1013,
         FingerprintKey    = 1014,
@@ -97,16 +100,23 @@ public:
         OclCompModeKey    = 1410,
 
         // xmrig-proxy
-        AccessLogFileKey  = 'A',
-        BindKey           = 'b',
-        CoinKey           = 1104,
-        CustomDiffKey     = 1102,
-        DebugKey          = 1101,
-        ModeKey           = 'm',
-        PoolCoinKey       = 'C',
-        ReuseTimeoutKey   = 1106,
-        WorkersKey        = 1103,
-        WorkersAdvKey     = 1107,
+        AccessLogFileKey   = 'A',
+        BindKey            = 'b',
+        CoinKey            = 1104,
+        CustomDiffKey      = 1102,
+        DebugKey           = 1101,
+        ModeKey            = 'm',
+        PoolCoinKey        = 'C',
+        ReuseTimeoutKey    = 1106,
+        WorkersKey         = 1103,
+        WorkersAdvKey      = 1107,
+        TlsBindKey         = 1108,
+        TlsCertKey         = 1109,
+        TlsCertKeyKey      = 1110,
+        TlsDHparamKey      = 1111,
+        TlsCiphersKey      = 1112,
+        TlsCipherSuitesKey = 1113,
+        TlsProtocolsKey    = 1114,
 
         // xmrig nvidia
         CudaMaxThreadsKey = 1200,
@@ -118,7 +128,7 @@ public:
         CudaMaxUsageKey   = 1206,
     };
 
-    virtual ~IConfig() {}
+    virtual ~IConfig() = default;
 
     virtual bool finalize()                                = 0;
     virtual bool isWatch() const                           = 0;
@@ -127,7 +137,7 @@ public:
     virtual bool parseUint64(int key, uint64_t arg)        = 0;
     virtual bool save()                                    = 0;
     virtual const Algorithm &algorithm() const             = 0;
-    virtual const char *fileName() const                   = 0;
+    virtual const String &fileName() const                 = 0;
     virtual void getJSON(rapidjson::Document &doc) const   = 0;
     virtual void parseJSON(const rapidjson::Document &doc) = 0;
     virtual void setFileName(const char *fileName)         = 0;

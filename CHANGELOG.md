@@ -1,3 +1,58 @@
+# v2.14.0
+- **[#227](https://github.com/xmrig/xmrig-amd/pull/227) Added new algorithm `cryptonight/rwz`, short alias `cn/rwz` (also known as CryptoNight ReverseWaltz), for upcoming [Graft](https://www.graft.network/) fork.**
+- **[#931](https://github.com/xmrig/xmrig/issues/931) Added new algorithm `cryptonight/zls`, short alias `cn/zls` for [Zelerius Network](https://zelerius.org) fork.**
+- **[#940](https://github.com/xmrig/xmrig/issues/940) Added new algorithm `cryptonight/double`, short alias `cn/double` (also known as CryptoNight HeavyX), for [X-CASH](https://x-cash.org/).**
+- [#951](https://github.com/xmrig/xmrig/issues/951#issuecomment-469581529) Fixed crash if AVX was disabled on OS level.
+- [#952](https://github.com/xmrig/xmrig/issues/952) Fixed compile error on some Linux.
+- [#957](https://github.com/xmrig/xmrig/issues/957#issuecomment-468890667) Added support for embedded config.
+
+# v2.13.0
+- **[#938](https://github.com/xmrig/xmrig/issues/938) Added support for new algorithm `cryptonight/r`, short alias `cn/r` (also known as CryptoNightR or CryptoNight variant 4), for upcoming [Monero](https://www.getmonero.org/) fork on March 9, thanks [@SChernykh](https://github.com/SChernykh).**
+- [#939](https://github.com/xmrig/xmrig/issues/939) Added support for dynamic (runtime) pools reload.
+- Invalid threads (eg with wrong device index) now ignored and not stop the miner.
+
+# v2.12.0
+- [#218](https://github.com/xmrig/xmrig-amd/pull/218) Added support for new algorithm `cryptonight/wow`, short alias `cn/wow` (also known as CryptonightR), for upcoming [Wownero](http://wownero.org) fork on February 14.
+- Improved `cryptonight/gpu` performance.
+
+# v2.11.1
+* Fixed regression, algorithm `cn-pico/trtl` was broken in v2.11.0.
+
+# v2.11.0
+- [#928](https://github.com/xmrig/xmrig/issues/928) Added support for new algorithm `cryptonight/gpu`, short alias `cn/gpu` (original name `cryptonight-gpu`), for upcoming [Ryo currency](https://ryo-currency.com) fork on February 14.
+- Fixed compatibility with AMD drivers, latest Windows/Linux drivers now supported.
+
+# v2.10.0
+- [#904](https://github.com/xmrig/xmrig/issues/904) Added new algorithm `cn-pico/trtl` (aliases `cryptonight-turtle`, `cn-trtl`) for upcoming TurtleCoin (TRTL) fork.
+
+# v2.9.4
+- [#913](https://github.com/xmrig/xmrig/issues/913) Fixed Masari (MSR) support (this update required for upcoming fork).
+
+# v2.9.3
+- [#211](https://github.com/xmrig/xmrig-amd/pull/211) Fixed `cn/half` compute errors.
+- Removed verbose messages about threads interleave.
+
+# v2.9.1
+- [#899](https://github.com/xmrig/xmrig/issues/899) Added support for new algorithm `cn/half` for Masari and Stellite forks.
+- [#203](https://github.com/xmrig/xmrig-amd/pull/203) Fixed GPU errors with worksize != 8 on cn-heavy.
+
+# v2.8.6
+- **Improved `cn-heavy`, `cn-heavy/xhv` perfomance up to 8% since v2.8.5 and up to 16% since v2.8.4, thanks [@SChernykh](https://github.com/SChernykh)**, pull requests [#187](https://github.com/xmrig/xmrig-amd/pull/187), [#189](https://github.com/xmrig/xmrig-amd/pull/189), [#190](https://github.com/xmrig/xmrig-amd/pull/190), [#191](https://github.com/xmrig/xmrig-amd/pull/191), [#192](https://github.com/xmrig/xmrig-amd/pull/192) and [#193](https://github.com/xmrig/xmrig-amd/pull/193).
+- **[#195](https://github.com/xmrig/xmrig-amd/pull/195) Fixed hashrate fluctuations. It's no longer necessary to use different intensities per thread.**
+- Improved `cn-heavy/tube` perfomance up to 6% and `cn/2` perfomance up to 1%.
+- Reduced power consumption with `cn/2`
+- Fixed possible invalid shares right after donation finish.
+- Improved AMD Vega64 auto configuration.
+- It's now recommended to revise your `config.json` and try:
+  - Same intensities for both threads.
+  - `strided_index=2, mem_chunk=1` for `cn/2`.
+  - `strided_index=1` for other algorithms.
+
+# v2.8.5
+- [#185](https://github.com/xmrig/xmrig-amd/pull/185) **Improved `cn-heavy`, `cn-heavy/xhv` and `cn-heavy/tube` perfomance up to 8%, thanks [@SChernykh](https://github.com/SChernykh).**
+- [#271](https://github.com/xmrig/xmrig-proxy/issues/271) Fixed pool options cascading when use mixed configuration: config file and command line.
+- Improved AMD Vega 56 auto configuration for `cn/2`.
+
 # v2.8.4
 - **Improved AMD Vega autoconfig (double threads & higher intensity).**
 - Fixed broken OpenCL code for `cn-lite` and `cn-heavy` (regression since v2.8.2).

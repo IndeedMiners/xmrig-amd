@@ -3,11 +3,18 @@ project(xmrig-amd)
 
 option(WITH_AEON      "CryptoNight-Lite support" ON)
 option(WITH_SUMO      "CryptoNight-Heavy support" ON)
+option(WITH_CN_PICO   "CryptoNight-Pico support" ON)
+option(WITH_CN_GPU    "CryptoNight-GPU support" ON)
 option(WITH_HTTPD     "HTTP REST API" ON)
-option(WITH_DEBUG_LOG "Enable debug log output" OFF)
 option(WITH_TLS       "Enable OpenSSL support" ON)
+option(WITH_ASM       "Enable ASM PoW implementations" ON)
 option(STRICT_CACHE   "Enable strict checks for OpenCL cache" ON)
 option(BUILD_STATIC   "Build static binary" OFF)
+option(ARM_TARGET     "Force use specific ARM target 8 or 7" 0)
+
+option(WITH_DEBUG_LOG            "Enable debug log output, network, etc" OFF)
+option(WITH_INTERLEAVE_DEBUG_LOG "Enable debug log for threads interleave" OFF)
+option(WITH_EMBEDDED_CONFIG      "Enable internal embedded JSON config" OFF)
 
 include (CheckIncludeFile)
 include (cmake/cpu.cmake)
@@ -18,11 +25,25 @@ set(HEADERS
     src/amd/GpuContext.h
     src/amd/OclCache.h
     src/amd/OclCLI.h
+    src/amd/OclCryptonightR_gen.h
     src/amd/OclError.h
     src/amd/OclGPU.h
     src/amd/OclLib.h
     src/api/NetworkState.h
     src/App.h
+    src/base/io/Json.h
+    src/base/io/Watcher.h
+    src/base/kernel/Entry.h
+    src/base/kernel/interfaces/IConfigListener.h
+    src/base/kernel/interfaces/ISignalListener.h
+    src/base/kernel/interfaces/IWatcherListener.h
+    src/base/kernel/Process.h
+    src/base/kernel/Signals.h
+    src/base/net/Pool.h
+    src/base/net/Pools.h
+    src/base/tools/Arguments.h
+    src/base/tools/Handle.h
+    src/base/tools/String.h
     src/common/config/CommonConfig.h
     src/common/config/ConfigLoader.h
     src/common/config/ConfigWatcher.h
@@ -40,7 +61,6 @@ set(HEADERS
     src/common/interfaces/ILogBackend.h
     src/common/interfaces/IStrategy.h
     src/common/interfaces/IStrategyListener.h
-    src/common/interfaces/IWatcherListener.h
     src/common/log/BasicLog.h
     src/common/log/ConsoleLog.h
     src/common/log/FileLog.h
@@ -48,7 +68,6 @@ set(HEADERS
     src/common/net/Client.h
     src/common/net/Id.h
     src/common/net/Job.h
-    src/common/net/Pool.h
     src/common/net/Storage.h
     src/common/net/strategies/FailoverStrategy.h
     src/common/net/strategies/SinglePoolStrategy.h
@@ -58,11 +77,14 @@ set(HEADERS
     src/common/utils/mm_malloc.h
     src/common/utils/timestamp.h
     src/common/xmrig.h
+    src/core/ConfigLoader_default.h
     src/core/ConfigLoader_platform.h
     src/core/Controller.h
+    src/core/usage.h
     src/interfaces/IJobResultListener.h
     src/interfaces/IThread.h
     src/interfaces/IWorker.h
+    src/Mem.h
     src/net/JobResult.h
     src/net/Network.h
     src/net/strategies/DonateStrategy.h
@@ -99,10 +121,21 @@ endif()
 set(SOURCES
     src/amd/OclCache.cpp
     src/amd/OclCLI.cpp
+    src/amd/OclCryptonightR_gen.cpp
     src/amd/OclGPU.cpp
     src/amd/OclLib.cpp
     src/api/NetworkState.cpp
     src/App.cpp
+    src/base/io/Json.cpp
+    src/base/io/Watcher.cpp
+    src/base/kernel/Entry.cpp
+    src/base/kernel/Process.cpp
+    src/base/kernel/Signals.cpp
+    src/base/net/Pool.cpp
+    src/base/net/Pools.cpp
+    src/base/tools/Arguments.cpp
+    src/base/tools/Handle.cpp
+    src/base/tools/String.cpp
     src/common/config/CommonConfig.cpp
     src/common/config/ConfigLoader.cpp
     src/common/config/ConfigWatcher.cpp
@@ -117,13 +150,13 @@ set(SOURCES
     src/common/log/Log.cpp
     src/common/net/Client.cpp
     src/common/net/Job.cpp
-    src/common/net/Pool.cpp
     src/common/net/strategies/FailoverStrategy.cpp
     src/common/net/strategies/SinglePoolStrategy.cpp
     src/common/net/SubmitResult.cpp
     src/common/Platform.cpp
     src/core/Config.cpp
     src/core/Controller.cpp
+    src/Mem.cpp
     src/net/Network.cpp
     src/net/strategies/DonateStrategy.cpp
     src/Summary.cpp
@@ -143,27 +176,38 @@ set(SOURCES_CRYPTO
     src/crypto/CryptoNight.cpp
    )
 
+if (WITH_ASM)
+    set(HEADERS_CRYPTO "${HEADERS_CRYPTO}" src/crypto/asm/CryptonightR_template.h)
+    set(SOURCES_CRYPTO "${SOURCES_CRYPTO}" src/crypto/CryptonightR_gen.cpp)
+endif()
+
 if (WIN32)
     set(SOURCES_OS
         res/app.rc
         src/amd/OclCache_win.cpp
         src/App_win.cpp
+        src/base/io/Json_win.cpp
         src/common/Platform_win.cpp
+        src/Mem_win.cpp
         )
 
     add_definitions(/DWIN32)
-    set(EXTRA_LIBS ws2_32 psapi iphlpapi userenv)
+    set(EXTRA_LIBS ws2_32 psapi iphlpapi userenv winmm)
 elseif (APPLE)
     set(SOURCES_OS
         src/amd/OclCache_unix.cpp
         src/App_unix.cpp
+        src/base/io/Json_unix.cpp
         src/common/Platform_mac.cpp
+        src/Mem_unix.cpp
         )
 else()
     set(SOURCES_OS
         src/amd/OclCache_unix.cpp
         src/App_unix.cpp
+        src/base/io/Json_unix.cpp
         src/common/Platform_unix.cpp
+        src/Mem_unix.cpp
         )
 
     set(EXTRA_LIBS pthread rt dl)
@@ -184,7 +228,6 @@ add_definitions(/D__STDC_FORMAT_MACROS)
 add_definitions(/DUNICODE)
 add_definitions(/DXMRIG_AMD_PROJECT)
 add_definitions(/DXMRIG_NO_LIBCPUID)
-add_definitions(/DXMRIG_NO_ASM)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -197,6 +240,8 @@ add_definitions(/DCL_USE_DEPRECATED_OPENCL_1_2_APIS)
 
 
 include(cmake/OpenSSL.cmake)
+include(cmake/cn-gpu.cmake)
+include(cmake/asm.cmake)
 
 CHECK_INCLUDE_FILE (syslog.h HAVE_SYSLOG_H)
 if (HAVE_SYSLOG_H)
@@ -218,8 +263,12 @@ if (NOT WITH_SUMO)
     add_definitions(/DXMRIG_NO_SUMO)
 endif()
 
-if (NOT WITH_IPBC)
-    add_definitions(/DXMRIG_NO_IPBC)
+if (NOT WITH_CN_PICO)
+    add_definitions(/DXMRIG_NO_CN_PICO)
+endif()
+
+if (WITH_EMBEDDED_CONFIG)
+    add_definitions(/DXMRIG_FEATURE_EMBEDDED_CONFIG)
 endif()
 
 if (WITH_HTTPD)
@@ -261,5 +310,9 @@ if (WITH_DEBUG_LOG)
     add_definitions(/DAPP_DEBUG)
 endif()
 
-add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES} ${SOURCES_OS} ${HEADERS_CRYPTO} ${SOURCES_CRYPTO} ${SOURCES_SYSLOG} ${HTTPD_SOURCES} ${TLS_SOURCES})
-target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBRARIES} ${UV_LIBRARIES} ${MHD_LIBRARY} ${EXTRA_LIBS} ${LIBS})
+if (WITH_INTERLEAVE_DEBUG_LOG)
+    add_definitions(/DAPP_INTERLEAVE_DEBUG)
+endif()
+
+add_executable(${CMAKE_PROJECT_NAME} ${HEADERS} ${SOURCES} ${SOURCES_OS} ${HEADERS_CRYPTO} ${SOURCES_CRYPTO} ${SOURCES_SYSLOG} ${HTTPD_SOURCES} ${TLS_SOURCES} ${CN_GPU_SOURCES} ${XMRIG_ASM_SOURCES})
+target_link_libraries(${CMAKE_PROJECT_NAME} ${XMRIG_ASM_LIBRARY} ${OPENSSL_LIBRARIES} ${UV_LIBRARIES} ${MHD_LIBRARY} ${EXTRA_LIBS} ${LIBS})

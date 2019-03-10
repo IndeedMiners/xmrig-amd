@@ -5,8 +5,8 @@
  * Copyright 2014-2016 Wolf9466    <https://github.com/OhGodAPet>
  * Copyright 2016      Jay D Dee   <jayddee246@gmail.com>
  * Copyright 2017-2018 XMR-Stak    <https://github.com/fireice-uk>, <https://github.com/psychocrypt>
- * Copyright 2018      SChernykh   <https://github.com/SChernykh>
- * Copyright 2016-2018 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright 2018-2019 SChernykh   <https://github.com/SChernykh>
+ * Copyright 2016-2019 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 #include <string>
 
 
+#include "base/tools/String.h"
 #include "common/xmrig.h"
 
 
@@ -46,49 +47,37 @@ struct GpuContext
         deviceIdx(0),
         rawIntensity(0),
         workSize(0),
-        stridedIndex(1),
+        threads(0),
+        stridedIndex(2),
         memChunk(2),
         compMode(1),
         unrollFactor(8),
         vendor(xmrig::OCL_VENDOR_UNKNOWN),
+        threadIdx(0),
+        opencl_ctx(nullptr),
+        platformIdx(0),
         DeviceID(nullptr),
+        amdDriverMajorVersion(0),
         CommandQueues(nullptr),
         InputBuffer(nullptr),
         OutputBuffer(nullptr),
         ExtraBuffers{ nullptr },
         Program(nullptr),
         Kernels{ nullptr },
+        ProgramCryptonightR(nullptr),
         freeMem(0),
+        globalMem(0),
         computeUnits(0),
         Nonce(0)
-    {}
-
-
-    inline GpuContext(size_t index, size_t intensity, size_t worksize, int stridedIndex, int memChunk, bool compMode, int unrollFactor) :
-        deviceIdx(index),
-        rawIntensity(intensity),
-        workSize(worksize),
-        stridedIndex(stridedIndex),
-        memChunk(memChunk),
-        compMode(compMode ? 1 : 0),
-        unrollFactor(unrollFactor),
-        vendor(xmrig::OCL_VENDOR_UNKNOWN),
-        DeviceID(nullptr),
-        CommandQueues(nullptr),
-        InputBuffer(nullptr),
-        OutputBuffer(nullptr),
-        ExtraBuffers{ nullptr },
-        Program(nullptr),
-        Kernels{ nullptr },
-        freeMem(0),
-        computeUnits(0),
-        Nonce(0)
-    {}
+    {
+        memset(Kernels, 0, sizeof(Kernels));
+    }
 
     /*Input vars*/
     size_t deviceIdx;
     size_t rawIntensity;
     size_t workSize;
+    size_t threads;
     int stridedIndex;
     int memChunk;
     int compMode;
@@ -96,16 +85,24 @@ struct GpuContext
     xmrig::OclVendor vendor;
 
     /*Output vars*/
+    size_t threadIdx;
+    cl_context opencl_ctx;
+    int platformIdx;
     cl_device_id DeviceID;
+    std::string DeviceString;
+    int amdDriverMajorVersion;
     cl_command_queue CommandQueues;
     cl_mem InputBuffer;
     cl_mem OutputBuffer;
     cl_mem ExtraBuffers[6];
     cl_program Program;
-    cl_kernel Kernels[12];
+    cl_kernel Kernels[32];
+    cl_program ProgramCryptonightR;
     size_t freeMem;
-    int computeUnits;
-    std::string name;
+    size_t globalMem;
+    cl_uint computeUnits;
+    xmrig::String board;
+    xmrig::String name;
 
     uint32_t Nonce;
 };

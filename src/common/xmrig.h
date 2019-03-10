@@ -5,7 +5,8 @@
  * Copyright 2014-2016 Wolf9466    <https://github.com/OhGodAPet>
  * Copyright 2016      Jay D Dee   <jayddee246@gmail.com>
  * Copyright 2017-2018 XMR-Stak    <https://github.com/fireice-uk>, <https://github.com/psychocrypt>
- * Copyright 2016-2018 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
+ * Copyright 2018-2019 SChernykh   <https://github.com/SChernykh>
+ * Copyright 2016-2019 XMRig       <https://github.com/xmrig>, <support@xmrig.com>
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,9 +32,11 @@ namespace xmrig
 
 enum Algo {
     INVALID_ALGO = -1,
-    CRYPTONIGHT,       /* CryptoNight (Monero) */
-    CRYPTONIGHT_LITE,  /* CryptoNight-Lite (AEON) */
-    CRYPTONIGHT_HEAVY  /* CryptoNight-Heavy (RYO) */
+    CRYPTONIGHT,        /* CryptoNight (2 MB) */
+    CRYPTONIGHT_LITE,   /* CryptoNight (1 MB) */
+    CRYPTONIGHT_HEAVY,  /* CryptoNight (4 MB) */
+    CRYPTONIGHT_PICO,   /* CryptoNight (256 KB) */
+    ALGO_MAX
 };
 
 
@@ -58,16 +61,24 @@ enum AlgoVariant {
 
 
 enum Variant {
-    VARIANT_AUTO = -1, // Autodetect
-    VARIANT_0    = 0,  // Original CryptoNight or CryptoNight-Heavy
-    VARIANT_1    = 1,  // CryptoNight variant 1 also known as Monero7 and CryptoNightV7
-    VARIANT_TUBE = 2,  // Modified CryptoNight-Heavy (TUBE only)
-    VARIANT_XTL  = 3,  // Modified CryptoNight variant 1 (Stellite only)
-    VARIANT_MSR  = 4,  // Modified CryptoNight variant 1 (Masari only)
-    VARIANT_XHV  = 5,  // Modified CryptoNight-Heavy (Haven Protocol only)
-    VARIANT_XAO  = 6,  // Modified CryptoNight variant 0 (Alloy only)
-    VARIANT_RTO  = 7,  // Modified CryptoNight variant 1 (Arto only)
-    VARIANT_2    = 8,  // CryptoNight variant 2
+    VARIANT_AUTO   = -1, // Autodetect
+    VARIANT_0      = 0,  // Original CryptoNight or CryptoNight-Heavy
+    VARIANT_1      = 1,  // CryptoNight variant 1 also known as Monero7 and CryptoNightV7
+    VARIANT_TUBE   = 2,  // Modified CryptoNight-Heavy (TUBE only)
+    VARIANT_XTL    = 3,  // Modified CryptoNight variant 1 (Stellite only)
+    VARIANT_MSR    = 4,  // Modified CryptoNight variant 1 (Masari only)
+    VARIANT_XHV    = 5,  // Modified CryptoNight-Heavy (Haven Protocol only)
+    VARIANT_XAO    = 6,  // Modified CryptoNight variant 0 (Alloy only)
+    VARIANT_RTO    = 7,  // Modified CryptoNight variant 1 (Arto only)
+    VARIANT_2      = 8,  // CryptoNight variant 2
+    VARIANT_HALF   = 9,  // CryptoNight variant 2 with half iterations (Masari/Stellite)
+    VARIANT_TRTL   = 10, // CryptoNight Turtle (TRTL)
+    VARIANT_GPU    = 11, // CryptoNight-GPU (Ryo)
+    VARIANT_WOW    = 12, // CryptoNightR (Wownero)
+    VARIANT_4      = 13, // CryptoNightR (Monero's variant 4)
+    VARIANT_RWZ    = 14, // CryptoNight variant 2 with 3/4 iterations and reversed shuffle operation (Graft)
+    VARIANT_ZLS    = 15, // CryptoNight variant 2 with 3/4 iterations (Zelerius)
+    VARIANT_DOUBLE = 16, // CryptoNight variant 2 with double iterations (X-CASH)
     VARIANT_MAX
 };
 
@@ -99,6 +110,7 @@ enum Assembly {
     ASM_AUTO,
     ASM_INTEL,
     ASM_RYZEN,
+    ASM_BULLDOZER,
     ASM_MAX
 };
 
